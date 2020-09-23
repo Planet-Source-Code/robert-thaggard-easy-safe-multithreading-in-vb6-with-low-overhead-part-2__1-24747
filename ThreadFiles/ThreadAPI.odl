@@ -1,0 +1,122 @@
+[
+    uuid(602E2CE0-53F7-11d2-A7F4-00A0C91110C3),
+    helpstring("API calls used for threading"),
+    lcid(0x0),
+    version(1.0)
+] 
+
+library ThreadingAPIs
+{  
+    importlib("stdole2.tlb");
+    typedef struct
+    {
+      long Data1;
+      short Data2;
+      short Data3;
+      unsigned char Data4[8];
+    } VBGUID;
+    typedef [public] VBGUID CLSID;
+    typedef [public] VBGUID IID;
+    typedef VBGUID* REFGUID;
+    typedef VBGUID* REFIID;
+    typedef VBGUID* REFCLSID;
+    typedef [public] long HWND;
+    typedef [public] long DWORD;
+    typedef [public] long UINT;
+    typedef [public] long WPARAM;
+    typedef [public] long LPARAM;
+    typedef [public] long HANDLE;
+    typedef enum 
+    {
+        BOOL_FALSE = 0,
+        BOOL_TRUE = 1
+    } BOOL;
+    typedef enum
+    {
+        PM_NOREMOVE = 0,
+        PM_REMOVE = 1,
+        PM_NOYIELD = 2
+    } PMOptions;
+    typedef enum 
+    {
+      CLSCTX_INPROC_SERVER   = 1, 
+      CLSCTX_INPROC_HANDLER  = 2,     
+      CLSCTX_LOCAL_SERVER    = 4, 
+      CLSCTX_REMOTE_SERVER   = 16
+    } CLSCTX;
+
+    typedef struct 
+    {
+      long DebugInfo;
+      long LockCount;
+      long RecursionCount;
+      long OwningThread;
+      long LockSemaphore;
+      long SpinCount;
+    } CRITICAL_SECTION;
+    typedef [public] long LPCRITICAL_SECTION;
+    typedef struct
+    {
+        HWND hWnd;
+        UINT Message;
+        WPARAM wParam;
+        LPARAM lParam;
+        DWORD dwTime;
+        long ptX;
+        long ptY;
+    } MSG;
+    [dllname("ole32.dll")]
+    module Ole32
+    {
+      [entry("CoMarshalInterThreadInterfaceInStream")] HRESULT CoMarshalInterThreadInterfaceInStream([in] REFIID riid, [in] stdole.IUnknown* pUnk, [out,retval] long* ppStm);
+      [entry("CoGetInterfaceAndReleaseStream")] HRESULT CoGetInterfaceAndReleaseStream([in] long pStm, [in] REFIID riid, [out,retval] stdole.IUnknown** ppUnk);
+      [entry("CLSIDFromProgID")] HRESULT CLSIDFromProgID([in] LPWSTR lpszProgID, [out,retval] CLSID* lpclsid);
+      [entry("CoInitialize")] long CoInitialize ([in] long pvReserved);
+      [entry("CoUninitialize")] long CoUninitialize ();
+      [entry("IIDFromString")] HRESULT GUIDFromString([in] LPWSTR lpsz, [out,retval] VBGUID* lpiid);
+      [entry("CoCreateInstance")] long CoCreateInstance([in] REFCLSID clsid, [in] IUnknown* pUnkOuter, [in] CLSCTX dwClsContext, [in] REFIID riid, [out] stdole.IUnknown** pvObj);
+    }
+    [dllname("kernel32")]
+    module Kernel32
+    {
+      const long CREATE_SUSPENDED = 0x00000004;
+      const long INFINITE = 0xFFFFFFFF;
+      const long DUPLICATE_SAME_ACCESS = 0x00000002;
+      const long STILL_ACTIVE = 0x00000103;
+      [entry("WaitForSingleObject")] long WaitForSingleObject ([in] HANDLE hHandle, [in] long dwMilliseconds);
+      [entry("CreateEventA")] HANDLE CreateEvent ([in] long lpEventAttributes, [in] long bManualReset, [in] long bInitialState, [in] LPSTR lpName);
+      [entry("CloseHandle")] long CloseHandle ([in] HANDLE hOjbect);
+      [entry("PulseEvent")] long PulseEvent ([in] HANDLE hEvent);
+      [entry("SetEvent")] long SetEvent ([in] HANDLE hEvent);
+      [entry("ResetEvent")] long ResetEvent ([in] HANDLE hEvent);
+      [entry("ResumeThread")] long ResumeThread ([in] HANDLE hThread);
+      [entry("SuspendThread")] long SuspendThread ([in] HANDLE hThread);
+      [entry("InterlockedIncrement")] long InterlockedIncrement([in] long pLong);
+      [entry("InterlockedDecrement")] long InterlockedDecrement([in] long pLong);
+      [entry("WaitForMultipleObjects")] long WaitForMultipleObjects ([in] long nCount, [in,out] HANDLE* lpHandles, [in] BOOL bWaitAll, [in] long dwMilliseconds);
+      [entry("GetCurrentThreadId")] long GetCurrentThreadId ();
+      [entry("GetCurrentProcessId")] long GetCurrentProcessId ();
+      [entry("GetCurrentProcess")] HANDLE GetCurrentProcess();
+      [entry("CreateThread")] HANDLE CreateThread ([in] long lpSecurityAttributes, [in] long dwStackSize, [in] long lpStartAddress, [in] long lpParameter, [in] long dwCreationFlags, [in,out] long* lpThreadId);
+      [entry("RtlMoveMemory")] void CopyMemory([in] void* pDest, [in] void* pSrc, [in] long ByteLen);
+      [entry("RtlZeroMemory")] void ZeroMemory([in] void* pDest, [in] long ByteLen);
+      [entry("Sleep")] void Sleep([in] long dwMilliSeconds);
+      [entry("InitializeCriticalSection")] void InitializeCriticalSection([in] LPCRITICAL_SECTION lpCriticalSection);
+      [entry("DeleteCriticalSection")] void DeleteCriticalSection([in] LPCRITICAL_SECTION lpCriticalSection);
+      [entry("EnterCriticalSection")] void EnterCriticalSection([in] LPCRITICAL_SECTION lpCriticalSection);
+      [entry("LeaveCriticalSection")] void LeaveCriticalSection([in] LPCRITICAL_SECTION lpCriticalSection);
+      [entry("DuplicateHandle")] BOOL DuplicateHandle([in] HANDLE hSourceProcessHandle, [in] HANDLE hSourceHandle, [in] HANDLE hTargetProcessHandle, [out] HANDLE* lpTargetHandle, [in,defaultvalue(0)] DWORD dwDesiredAccess, [in, defaultvalue(0)] BOOL bInheritHandle, [in,defaultvalue(2)] DWORD dwOptions);
+      [entry("GetExitCodeThread")]BOOL GetExitCodeThread([in] HANDLE hThread, [out] DWORD *lpExitCode);
+      //[entry("OutputDebugStringW")] void ODS([in] LPWSTR lpOutputString);
+    }
+    [dllname("user32")]
+    module User32
+   {
+        [entry("PeekMessageA")] BOOL PeekMessage([in] MSG* lpMsg, [in] HWND hWnd, [in] UINT wMsgFilterMin, [in] UINT wMsgFilterMax, [in] PMOptions wRemoveMsg);
+        [entry("TranslateMessage")] BOOL TranslateMessage([in] MSG* lpMsg);
+        [entry("DispatchMessageA")] long DispatchMessage([in] MSG* lpMsg);
+        [entry("EnumThreadWindows")] BOOL EnumThreadWindows([in] DWORD dwThreadId, [in] long lpfn, [in] LPARAM lParam);
+        [entry("GetClassNameA")] long GetClassNameA([in] HWND hWnd, [in] LPSTR lpClassName, [in]long nMaxCount);
+        [entry("GetClassNameW")] long GetClassNameW([in] HWND hWnd, [in] LPWSTR lpClassName, [in]long nMaxCount);
+   };
+}
