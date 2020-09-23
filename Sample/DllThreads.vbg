@@ -1,0 +1,3 @@
+VBGROUP 5.0
+Project=DllThreads.vbp
+StartupProject=TestProj\Project1.vbp
